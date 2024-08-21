@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.base.models import Base
+from apps.football_field.distance_manager import WithDistanceManager
 from apps.user.models import User
 
 
@@ -15,11 +16,13 @@ class FootballField(Base):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, validators=[
         MinValueValidator(-90),
         MaxValueValidator(90)
-    ])
+    ], null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, validators=[
         MinValueValidator(-180),
-        MaxValueValidator(180)
-    ])
+        MaxValueValidator(180),
+    ], null=True, blank=True)
+
+    objects = WithDistanceManager()
 
     def __str__(self):
         return f"{self.id} | {self.name}"

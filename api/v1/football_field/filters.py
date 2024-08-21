@@ -1,11 +1,14 @@
-from django.db.models import Q
+from django.db.models import Q, F
 from django_filters import rest_framework as filters
 from django.utils import timezone
 from math import radians, sin, cos, sqrt, atan2
 
 from apps.football_field.models import FootballField
+from .haversine import Haversine, Asin, Sqrt, Power, Cos, Sin, Radians
+from django.db.models import F, Func, Value, FloatField, ExpressionWrapper
 
 
+# Example 1
 def haversine_distance(lat1, lon1, lat2, lon2):
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
 
@@ -52,11 +55,21 @@ class FootballFieldFilter(filters.FilterSet):
             latitude = float(latitude)
             longitude = float(longitude)
 
-            distances = []
-            for obj in queryset:
-                dist = haversine_distance(latitude, longitude, float(obj.latitude), float(obj.longitude))
-                distances.append((obj, dist))
-            distances.sort(key=lambda x: x[1])
-            queryset = [obj for obj, _ in distances]
+            # FOR Example 2
+            # queryset = FootballField.objects.annotate(
+            #     distance=ExpressionWrapper(
+            #         6371 * 2 * Asin(
+            #             Sqrt(
+            #                 Power(Sin(Radians(F('latitude') - Value(latitude))) / 2, 2) +
+            #                 Cos(Radians(F('latitude'))) * Cos(Radians(Value(latitude))) *
+            #                 Power(Sin(Radians(F('longitude') - Value(longitude))) / 2, 2)
+            #             )
+            #         ),
+            #         output_field=FloatField()
+            #     )
+            # ).order_by('distance')
+
+            # For Example 3
+            queryset = FootballField.objects.with_distance(latitude, longitude).order_by('distance')
 
         return queryset

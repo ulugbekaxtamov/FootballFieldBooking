@@ -12,12 +12,13 @@ class FootballFieldImageImageSerializer(serializers.ModelSerializer):
 
 class FootballFieldSerializer(serializers.ModelSerializer):
     images = FootballFieldImageImageSerializer(many=True, read_only=True)
-    owner = UserSerializer(read_only=True)
-    distance = serializers.FloatField(read_only=True)
+    # owner = UserSerializer(read_only=True)
+    distance = serializers.FloatField(read_only=True, allow_null=True)
 
     class Meta:
         model = FootballField
+        # fields = '__all__'
         fields = [
             'id', 'name', 'address', 'contact', 'price_per_hour',
-            'latitude', 'longitude', 'images', 'distance'
+            'latitude', 'longitude', 'images', 'distance', 'owner'
         ]
